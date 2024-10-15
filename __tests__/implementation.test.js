@@ -52,4 +52,44 @@ describe("app", () => {
         });
     });
   });
+  describe("GET /api/articles/:article_id ", () => {
+    it("should respond with status 200 and the article object", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then((response) => {
+          const expectedProperties = [
+            "author",
+            "title",
+            "article_id",
+            "body",
+            "topic",
+            "created_at",
+            "votes",
+            "article_img_url",
+          ];
+
+          expectedProperties.forEach((property) => {
+            expect(response.body.article).toHaveProperty(property);
+          });
+        });
+    });
+
+    it("should respond with status 404 if the article is not found", () => {
+      return request(app)
+        .get("/api/articles/9999")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Article Not Found");
+        });
+    });
+    it("should respond with status 400 if the article ID is invalid", () => {
+      return request(app)
+        .get("/api/articles/invalidId")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Invalid input");
+        });
+    });
+  });
 });
