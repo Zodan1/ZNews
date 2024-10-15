@@ -3,9 +3,9 @@ const {
   fetchEndpoints,
   fetchArticlesById,
   fetchAllArticles,
+  fetchCommentsByArticleId,
 } = require("../1_Models/test_model");
 const { request, response } = require("../app");
-// const { request, response } = require("../app");
 const articles = require("../db/data/test-data/articles");
 const topics = require("../db/data/test-data/topics");
 
@@ -36,9 +36,28 @@ const getArticlesById = (request, response, next) => {
 };
 
 const getAllArticles = (request, response, next) => {
-  fetchAllArticles().then((articles) => {
-    response.status(200).send({ articles });
-  });
+  fetchAllArticles()
+    .then((articles) => {
+      response.status(200).send({ articles });
+    })
+    .catch(next);
 };
 
-module.exports = { getTopics, getEndpoints, getArticlesById, getAllArticles };
+const getCommentsByArticleId = (request, response, next) => {
+  const { article_id } = request.params;
+  fetchCommentsByArticleId(article_id)
+    // console
+    //   .log(article_id)
+    .then((comments) => {
+      response.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+module.exports = {
+  getTopics,
+  getEndpoints,
+  getArticlesById,
+  getAllArticles,
+  getCommentsByArticleId,
+};

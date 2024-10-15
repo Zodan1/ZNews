@@ -113,4 +113,43 @@ describe("app", () => {
         });
     });
   });
+  describe("GET /api/articles/:article_id/comments", () => {
+    it("should respond with a status 200 and array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then((response) => {
+          const expectedProperties = [
+            "comment_id",
+            "votes",
+            "created_at",
+            "author",
+            "body",
+            "article_id",
+          ];
+
+          response.body.comments.forEach((comment) => {
+            expectedProperties.forEach((property) => {
+              expect(comment).toHaveProperty(property);
+            });
+          });
+        });
+    });
+    it("should respond with status 404 if the article is not found", () => {
+      return request(app)
+        .get("/api/articles/99999/comments")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Article Not Found");
+        });
+    });
+    it("should respond with status 400 if the article_id is invalid", () => {
+      return request(app)
+        .get("/api/articles/invalidId/comments")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Invalid input");
+        });
+    });
+  });
 });

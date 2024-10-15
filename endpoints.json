@@ -42,5 +42,20 @@
         "comment_count": 6
       }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "Get all comments for a given article.",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "votes": 10,
+          "created_at": "2020-11-03T13:47:28.556Z",
+          "author": "grumpy19",
+          "body": "This is a great article!",
+          "article_id": 1
+        }
+      ]
+    }
   }
 }
