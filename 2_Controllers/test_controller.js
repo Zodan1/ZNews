@@ -2,7 +2,9 @@ const {
   fetchTopics,
   fetchEndpoints,
   fetchArticlesById,
+  fetchAllArticles,
 } = require("../1_Models/test_model");
+const { request, response } = require("../app");
 // const { request, response } = require("../app");
 const articles = require("../db/data/test-data/articles");
 const topics = require("../db/data/test-data/topics");
@@ -33,4 +35,10 @@ const getArticlesById = (request, response, next) => {
     .catch(next);
 };
 
-module.exports = { getTopics, getEndpoints, getArticlesById };
+const getAllArticles = (request, response, next) => {
+  fetchAllArticles().then((articles) => {
+    response.status(200).send({ articles });
+  });
+};
+
+module.exports = { getTopics, getEndpoints, getArticlesById, getAllArticles };
