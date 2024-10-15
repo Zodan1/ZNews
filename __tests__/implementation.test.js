@@ -34,4 +34,22 @@ describe("app", () => {
         });
     });
   });
+  describe("GET /api", () => {
+    it("should respond with status 200 and the API documentation", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then((response) => {
+          // console.log(response);
+          const expectedProperties = [
+            "GET /api",
+            "GET /api/topics",
+            "GET /api/articles",
+          ];
+          expectedProperties.forEach((property) => {
+            expect(response.body).toHaveProperty(property);
+          });
+        });
+    });
+  });
 });
