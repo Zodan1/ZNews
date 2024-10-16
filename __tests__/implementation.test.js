@@ -20,7 +20,7 @@ describe("app", () => {
         expect(response.body.msg).toBe("Path Not Found");
       });
   });
-  describe("/api/topics", () => {
+  describe("GET /api/topics", () => {
     it("GET 200 sends an array to the client", () => {
       return request(app)
         .get("/api/topics")
@@ -28,6 +28,7 @@ describe("app", () => {
         .then(({ body }) => {
           expect(body.topics.length).toBe(3);
           body.topics.forEach((topic) => {
+            expect(typeof topic.slug).toBe("string");
             expect(topic).toHaveProperty("slug");
             expect(topic).toHaveProperty("description");
           });
@@ -40,14 +41,15 @@ describe("app", () => {
         .get("/api")
         .expect(200)
         .then((response) => {
-          // console.log(response);
           const expectedProperties = [
             "GET /api",
             "GET /api/topics",
             "GET /api/articles",
+            "GET /api/articles/:article_id",
+            "GET /api/articles/:article_id/comments",
           ];
           expectedProperties.forEach((property) => {
-            expect(response.body).toHaveProperty(property);
+            expect(response.body.endpointsData).toHaveProperty(property);
           });
         });
     });
@@ -149,6 +151,51 @@ describe("app", () => {
         .expect(400)
         .then((response) => {
           expect(response.body.msg).toBe("Invalid input");
+        });
+    });
+  });
+  describe("POST /api/articles/:article_id/comments", () => {
+    it("Should respond with a status of 201 and a new posted comment", () => {
+      const newComment = { username: "butter_bridge", body: "Good article!" };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .expect(201)
+        .send(newComment)
+        .then((response) => {
+          console.log(response.body);
+          expect(response.body.comment).toHaveProperty("comment_id");
+          expect(response.body.comment).toHaveProperty("article_id", 1);
+          expect(response.body.comment).toHaveProperty(
+            "author",
+            "butter_bridge"
+          );
+          expect(response.body.comment).toHaveProperty("body", "Good article!");
+          expect(response.body.comment).toHaveProperty("votes", 0);
+          expect(response.body.comment).toHaveProperty("created_at");
+        });
+    });
+    it("should respond with status 400 for a malformed request body", () => {
+      const malformedComment = {
+        user: "butter_bridge",
+        body: "Great article!",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(malformedComment)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+
+    it("should respond with status 404 if the article is not found", () => {
+      const newComment = { username: "butter_bridge", body: "Great article!" };
+      return request(app)
+        .post("/api/articles/99999/comments")
+        .send(newComment)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Article Not Found");
         });
     });
   });
