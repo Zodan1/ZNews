@@ -3,7 +3,6 @@ const fs = require("fs");
 
 const fetchTopics = () => {
   return db.query(`SELECT * FROM topics`).then(({ rows }) => {
-    // console.log("Hello from model");
     return rows;
   });
 };
@@ -12,7 +11,7 @@ const fetchEndpoints = () => {
   return new Promise((resolve, reject) => {
     fs.readFile("endpoints.json", "utf8", (err, endpointsData) => {
       if (err) reject(err);
-      // console.log(endpointsData);
+
       resolve(JSON.parse(endpointsData));
     });
   });
@@ -60,10 +59,37 @@ const fetchCommentsByArticleId = (article_id) => {
     });
 };
 
+const addComments = (article_id, username, body) => {
+  return db
+    .query(
+      `
+    SELECT * FROM articles WHERE article_id = $1;
+  `,
+      [article_id]
+    )
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article Not Found" });
+      }
+      return db.query(
+        `
+      INSERT INTO comments (article_id, author, body, created_at)
+      VALUES ($1, $2, $3, NOW())
+      RETURNING comment_id, votes, created_at, author, body, article_id;
+    `,
+        [article_id, username, body]
+      );
+    })
+    .then((result) => {
+      return result.rows[0];
+    });
+};
+
 module.exports = {
   fetchTopics,
   fetchEndpoints,
   fetchArticlesById,
   fetchAllArticles,
   fetchCommentsByArticleId,
+  addComments,
 };
