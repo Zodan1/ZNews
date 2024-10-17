@@ -199,4 +199,37 @@ describe("app", () => {
         });
     });
   });
+  describe("PATCH /api/articles/:article_id", () => {
+    it("Should respond with a status of 200 and update an article's votes by articles's ID", () => {
+      const updatedArticle = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedArticle)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.updatedArticle).toHaveProperty("votes");
+          expect(response.body.updatedArticle.votes).toBe(101);
+        });
+    });
+    it("Should respond with 404 if the article is not found", () => {
+      const updatedArticle = { inc_votes: 1 };
+      return request(app)
+        .patch("/api/articles/9999")
+        .send(updatedArticle)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Article Not Found");
+        });
+    });
+    it("Should respond with 400 if the request body is malformed", () => {
+      const updatedArticle = { inc_votes: "one" };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(updatedArticle)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+  });
 });
