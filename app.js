@@ -6,6 +6,7 @@ const {
   getCommentsByArticleId,
   postComments,
   patchArticleVotes,
+  deleteCommentsById,
 } = require("./2_Controllers/test_controller");
 const express = require("express");
 const app = express();
@@ -26,6 +27,8 @@ app.post("/api/articles/:article_id/comments", postComments);
 
 app.patch("/api/articles/:article_id", patchArticleVotes);
 
+app.delete("/api/comments/:comment_id", deleteCommentsById);
+
 app.all("*", (request, response) => {
   response.status(404).send({ msg: "Path Not Found" });
 });
@@ -43,7 +46,7 @@ app.use((err, request, response, next) => {
 });
 
 app.use((err, request, response, next) => {
-  console.log(err);
+  // console.log(err);
   response.status(500).send({ msg: "Internal Server Error" });
 });
 module.exports = app;

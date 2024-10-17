@@ -6,6 +6,7 @@ const {
   fetchCommentsByArticleId,
   addComments,
   updateArticleVotes,
+  removeCommentsById,
 } = require("../1_Models/test_model");
 const { request, response } = require("../app");
 
@@ -76,6 +77,16 @@ const patchArticleVotes = (request, response, next) => {
     .catch(next);
 };
 
+const deleteCommentsById = (request, response, next) => {
+  const { comment_id } = request.params;
+
+  removeCommentsById(comment_id)
+    .then(() => {
+      response.status(204).send({});
+    })
+    .catch(next);
+};
+
 module.exports = {
   getTopics,
   getEndpoints,
@@ -84,4 +95,5 @@ module.exports = {
   getCommentsByArticleId,
   postComments,
   patchArticleVotes,
+  deleteCommentsById,
 };
