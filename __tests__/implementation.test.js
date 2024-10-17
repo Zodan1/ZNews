@@ -121,19 +121,13 @@ describe("app", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then((response) => {
-          const expectedProperties = [
-            "comment_id",
-            "votes",
-            "created_at",
-            "author",
-            "body",
-            "article_id",
-          ];
-
           response.body.comments.forEach((comment) => {
-            expectedProperties.forEach((property) => {
-              expect(comment).toHaveProperty(property);
-            });
+            expect(comment).toHaveProperty("comment_id");
+            expect(comment).toHaveProperty("votes");
+            expect(comment).toHaveProperty("created_at");
+            expect(comment).toHaveProperty("author");
+            expect(comment).toHaveProperty("body");
+            expect(comment).toHaveProperty("article_id", 1);
           });
         });
     });
@@ -162,7 +156,6 @@ describe("app", () => {
         .expect(201)
         .send(newComment)
         .then((response) => {
-          console.log(response.body);
           expect(response.body.comment).toHaveProperty("comment_id");
           expect(response.body.comment).toHaveProperty("article_id", 1);
           expect(response.body.comment).toHaveProperty(
@@ -198,6 +191,16 @@ describe("app", () => {
           expect(response.body.msg).toBe("Article Not Found");
         });
     });
+    it("should respond with status 500 if the user is not found", () => {
+      const newComment = { username: "butter_boy", body: "Great article!" };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(500)
+        .then((response) => {
+          expect(response.body.msg).toBe("Internal Server Error");
+        });
+    });
   });
   describe("PATCH /api/articles/:article_id", () => {
     it("Should respond with a status of 200 and update an article's votes by articles's ID", () => {
@@ -229,6 +232,32 @@ describe("app", () => {
         .expect(400)
         .then((response) => {
           expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+  });
+  describe("DELETE /api/comments/:comment_id", () => {
+    it("Should respond with status 204 and contain no content", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then((response) => {
+          expect(response.body).toEqual({});
+        });
+    });
+    it("should respond with 404 if the comment is not found", () => {
+      return request(app)
+        .delete("/api/comments/9999")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("Comment Not Found");
+        });
+    });
+    it("should respond with 400 if comment Id is invalid", () => {
+      return request(app)
+        .delete("/api/comments/invalid_id")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Invalid input");
         });
     });
   });
