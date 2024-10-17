@@ -7,8 +7,9 @@ const {
   addComments,
   updateArticleVotes,
   removeCommentsById,
+  fetchUsers,
 } = require("../1_Models/test_model");
-const { request, response } = require("../app");
+const users = require("../db/data/test-data/users");
 
 const getTopics = (request, response, next) => {
   fetchTopics()
@@ -87,6 +88,14 @@ const deleteCommentsById = (request, response, next) => {
     .catch(next);
 };
 
+const getUsers = (request, response, next) => {
+  fetchUsers()
+    .then((users) => {
+      response.status(200).send({ users });
+    })
+    .catch(next);
+};
+
 module.exports = {
   getTopics,
   getEndpoints,
@@ -96,4 +105,5 @@ module.exports = {
   postComments,
   patchArticleVotes,
   deleteCommentsById,
+  getUsers,
 };

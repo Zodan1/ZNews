@@ -92,5 +92,17 @@
         "article_img_url": "https://example.com/image.jpg"
       }
     }
+  },
+  "GET /api/users": {
+    "description": "Get all users.",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "butter_bridge",
+          "name": "Jonny",
+          "avatar_url": "https://example.com/avatar.jpg"
+        }
+      ]
+    }
   }
 }

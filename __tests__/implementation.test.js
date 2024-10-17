@@ -261,4 +261,19 @@ describe("app", () => {
         });
     });
   });
+  describe("GET /api/users", () => {
+    it("Should respond 200 with an array of users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.users).toBeInstanceOf(Array);
+          response.body.users.forEach((user) => {
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("avatar_url");
+          });
+        });
+    });
+  });
 });

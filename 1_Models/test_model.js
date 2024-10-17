@@ -117,6 +117,12 @@ const removeCommentsById = (comment_id) => {
     });
 };
 
+const fetchUsers = () => {
+  return db.query("SELECT * FROM users;").then(({ rows }) => {
+    return rows;
+  });
+};
+
 module.exports = {
   fetchTopics,
   fetchEndpoints,
@@ -126,4 +132,5 @@ module.exports = {
   addComments,
   updateArticleVotes,
   removeCommentsById,
+  fetchUsers,
 };
