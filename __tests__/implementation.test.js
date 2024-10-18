@@ -1,8 +1,10 @@
 const data = require("../db/data/test-data/index");
 const app = require("../app");
+const sorted = require("jest-sorted");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const request = require("supertest");
+const { forEach } = require("../db/data/test-data/articles");
 
 beforeEach(() => {
   return seed(data);
@@ -301,16 +303,9 @@ describe("app", () => {
         .then((response) => {
           expect(response.body.articles).toBeInstanceOf(Array);
           expect(response.body.articles[0]).toHaveProperty("created_at");
-
-          for (let i = 1; i < response.body.articles.length; i++) {
-            const currentArticleDate = new Date(
-              response.body.articles[i].created_at
-            ).getTime();
-            const previousArticleDate = new Date(
-              response.body.articles[i - 1].created_at
-            ).getTime();
-            expect(currentArticleDate).toBeLessThanOrEqual(previousArticleDate);
-          }
+          expect(response.body.articles).toBeSortedBy("created_at", {
+            descending: true,
+          });
         });
     });
     it("should respond with status 200 and sort articles by any valid column", () => {
@@ -329,17 +324,7 @@ describe("app", () => {
         .expect(200)
         .then((response) => {
           expect(response.body.articles).toBeInstanceOf(Array);
-          for (let i = 1; i < response.body.articles.length; i++) {
-            const currentArticleDate = new Date(
-              response.body.articles[i].created_at
-            ).getTime();
-            const previousArticleDate = new Date(
-              response.body.articles[i - 1].created_at
-            ).getTime();
-            expect(currentArticleDate).toBeGreaterThanOrEqual(
-              previousArticleDate
-            );
-          }
+          expect(response.body.articles).toBeSortedBy("created_at");
         });
     });
 
@@ -358,6 +343,19 @@ describe("app", () => {
         .expect(400)
         .then((response) => {
           expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+  });
+  describe("GET /api/articles (topic query)", () => {
+    it("should respond with status 200 and filter articles by topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.articles).toBeInstanceOf(Array);
+          response.body.articles.forEach((article) => {
+            expect(article).toHaveProperty("topic", "mitch");
+          });
         });
     });
   });
