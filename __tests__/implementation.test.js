@@ -276,4 +276,89 @@ describe("app", () => {
         });
     });
   });
+  describe("GET /api/articles (sorting queries)", () => {
+    it("Should respond 200 ", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.articles).toBeInstanceOf(Array);
+          expect(response.body.articles[0]).toHaveProperty("created_at");
+          response.body.articles.forEach((article) => {
+            expect(article).toHaveProperty("author");
+            expect(article).toHaveProperty("title");
+            expect(article).toHaveProperty("article_id");
+            expect(article).toHaveProperty("topic");
+            expect(article).toHaveProperty("created_at");
+            expect(article).toHaveProperty("votes");
+          });
+        });
+    });
+    it("should respond with status 200 and an array of articles sorted by created_at descending by default", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.articles).toBeInstanceOf(Array);
+          expect(response.body.articles[0]).toHaveProperty("created_at");
+
+          for (let i = 1; i < response.body.articles.length; i++) {
+            const currentArticleDate = new Date(
+              response.body.articles[i].created_at
+            ).getTime();
+            const previousArticleDate = new Date(
+              response.body.articles[i - 1].created_at
+            ).getTime();
+            expect(currentArticleDate).toBeLessThanOrEqual(previousArticleDate);
+          }
+        });
+    });
+    it("should respond with status 200 and sort articles by any valid column", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.articles).toBeInstanceOf(Array);
+          expect(response.body.articles[0]).toHaveProperty("title");
+        });
+    });
+
+    it("should respond with status 200 and sort articles in ascending order when order=asc", () => {
+      return request(app)
+        .get("/api/articles?sort_by=created_at&order=asc")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.articles).toBeInstanceOf(Array);
+          for (let i = 1; i < response.body.articles.length; i++) {
+            const currentArticleDate = new Date(
+              response.body.articles[i].created_at
+            ).getTime();
+            const previousArticleDate = new Date(
+              response.body.articles[i - 1].created_at
+            ).getTime();
+            expect(currentArticleDate).toBeGreaterThanOrEqual(
+              previousArticleDate
+            );
+          }
+        });
+    });
+
+    it("should respond with status 400 if sort_by column is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort_by=invalid")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+
+    it("should respond with status 400 if order value is invalid", () => {
+      return request(app)
+        .get("/api/articles?sort_by=created_at&order=invalid")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+  });
 });

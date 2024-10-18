@@ -28,20 +28,6 @@ const fetchArticlesById = (article_id) => {
     });
 };
 
-const fetchAllArticles = () => {
-  return db
-    .query(
-      `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
-      COUNT(comments.comment_id) AS comment_count FROM articles 
-      LEFT JOIN comments ON articles.article_id = comments.article_id 
-      GROUP BY articles.article_id 
-      ORDER BY articles.created_at DESC;`
-    )
-    .then((result) => {
-      return result.rows;
-    });
-};
-
 const fetchCommentsByArticleId = (article_id) => {
   return db
     .query(
@@ -123,14 +109,50 @@ const fetchUsers = () => {
   });
 };
 
+const fetchArticles = (sort_by = "created_at", order = "desc") => {
+  const validSortColumns = [
+    "title",
+    "author",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+  const validOrderOptions = ["asc", "desc"];
+
+  if (
+    !validSortColumns.includes(sort_by) ||
+    !validOrderOptions.includes(order)
+  ) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  return db
+    .query(
+      `
+    SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
+      COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order};
+  `
+    )
+    .then((result) => {
+      return result.rows;
+    });
+};
+
 module.exports = {
   fetchTopics,
   fetchEndpoints,
   fetchArticlesById,
-  fetchAllArticles,
   fetchCommentsByArticleId,
   addComments,
   updateArticleVotes,
   removeCommentsById,
   fetchUsers,
+  fetchArticles,
 };
