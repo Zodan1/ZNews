@@ -2,13 +2,14 @@ const {
   fetchTopics,
   fetchEndpoints,
   fetchArticlesById,
-  fetchAllArticles,
   fetchCommentsByArticleId,
   addComments,
   updateArticleVotes,
   removeCommentsById,
   fetchUsers,
+  fetchArticles,
 } = require("../1_Models/test_model");
+const { response } = require("../app");
 const users = require("../db/data/test-data/users");
 
 const getTopics = (request, response, next) => {
@@ -30,14 +31,6 @@ const getArticlesById = (request, response, next) => {
   fetchArticlesById(articles_id)
     .then((article) => {
       response.status(200).send({ article });
-    })
-    .catch(next);
-};
-
-const getAllArticles = (request, response, next) => {
-  fetchAllArticles()
-    .then((articles) => {
-      response.status(200).send({ articles });
     })
     .catch(next);
 };
@@ -96,14 +89,23 @@ const getUsers = (request, response, next) => {
     .catch(next);
 };
 
+const getArticles = (request, response, next) => {
+  const { sort_by, order } = request.query; //check this
+  fetchArticles(sort_by, order)
+    .then((articles) => {
+      response.status(200).send({ articles });
+    })
+    .catch(next);
+};
+
 module.exports = {
   getTopics,
   getEndpoints,
   getArticlesById,
-  getAllArticles,
   getCommentsByArticleId,
   postComments,
   patchArticleVotes,
   deleteCommentsById,
   getUsers,
+  getArticles,
 };
