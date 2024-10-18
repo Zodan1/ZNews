@@ -9,8 +9,6 @@ const {
   fetchUsers,
   fetchArticles,
 } = require("../1_Models/test_model");
-const { response } = require("../app");
-const users = require("../db/data/test-data/users");
 
 const getTopics = (request, response, next) => {
   fetchTopics()

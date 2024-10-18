@@ -1,10 +1,9 @@
 const data = require("../db/data/test-data/index");
 const app = require("../app");
-const sorted = require("jest-sorted");
+require("jest-sorted");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const request = require("supertest");
-const { forEach } = require("../db/data/test-data/articles");
 
 beforeEach(() => {
   return seed(data);
