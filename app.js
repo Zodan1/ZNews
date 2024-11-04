@@ -11,6 +11,9 @@ const {
 } = require("./2_Controllers/test_controller");
 const express = require("express");
 const app = express();
+const cors = require("cors");
+
+app.use(cors());
 
 app.use(express.json());
 
